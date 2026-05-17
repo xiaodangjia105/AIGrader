@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: aigrader
+
+  # Database - PostgreSQL
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:10.237.255.9}:${DB_PORT:5432}/${DB_NAME:aigrader}
+    username: ${DB_USER:aigrader}
+    password: ${DB_PASSWORD:aigrader123}
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Redis
+  data:
+    redis:
+      host: ${REDIS_HOST:10.237.255.9}
+      port: ${REDIS_PORT:6379}
+
+  # Spring AI - DeepSeek (OpenAI-compatible)
+  ai:
+    openai:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          model: deepseek-chat
+          temperature: 0.3
+
+# Server
+server:
+  port: ${SERVER_PORT:8080}
+
+# Logging
+logging:
+  level:
+    com.aigrader: DEBUG

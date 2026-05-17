@@ -1,0 +1,15 @@
+﻿# AIGrader - Local Configuration Template
+# Copy this file to application-local.yml and fill in real values
+# application-local.yml is in .gitignore
+
+spring:
+  datasource:
+    url: jdbc:postgresql://your-host:5432/aigrader
+    username: your-user
+    password: your-password
+
+  ai:
+    openai:
+      api-key: sk-your-deepseek-api-key
+
+# Do NOT commit application-local.yml!
