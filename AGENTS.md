@@ -1,80 +1,99 @@
-# ai_grader 鈥?AI 鍗忎綔瑙勮寖
+﻿# AIGrader — AI 协作规范
 
-> 鏈枃浠朵负 Codex / AI 缂栫爜鍔╂墜鎻愪緵椤圭洰绾ц涓虹害鏉熶笌涓婁笅鏂囬敋鐐广€?> 姣忔鏂板璇濆紑濮嬫椂锛屽簲棣栧厛鍙戦€佹湰鏂囦欢鍐呭浣滀负涓婁笅鏂囥€?
+> 本文件为 Codex / AI 编码助手提供项目级行为约束与上下文锚点。
+> 每次新对话开始时，应首先发送本文件内容作为上下文。
+
 ---
 
-## 椤圭洰姒傝堪
+## 项目概述
 
-AI 浣滀笟鎵规敼骞冲彴锛氳鐩?**鏁欏笀甯冪疆 鈫?AI 鎵规敼 鈫?瀛︾敓璁㈡ 鈫?鏁欏笀澶嶆牳** 鐨勫畬鏁撮棴鐜€?
-- **鍚庣锛?* Spring Boot 3.4 + Maven + Java 21
-- **鍓嶇锛?* React 18 + Vite + TypeScript + Ant Design 5
-- **AI锛?* Spring AI + DeepSeek (`deepseek-chat`)
-- **鏁版嵁搴擄細** PostgreSQL 16 + pgvector 鎵╁睍
-- **缂撳瓨/闃熷垪锛?* Redis 7
-- **瀵硅薄瀛樺偍锛?* MinIO
+AI 作业批改平台，覆盖 **教师布置 → AI 批改 → 学生订正 → 教师复核** 的完整闭环。
 
-## 椤圭洰缁撴瀯
+- **后端：** Spring Boot 3.4 + Maven + Java 21
+- **前端：** React 18 + Vite + TypeScript + Ant Design 5
+- **AI：** Spring AI + DeepSeek (`deepseek-chat`)
+- **数据库：** PostgreSQL 16 + pgvector 扩展
+- **缓存/队列：** Redis 7（DB=2）
+
+## 项目结构
 
 ```
-ai_grader/
-鈹溾攢鈹€ AGENTS.md               鈫?鏈枃浠?鈹溾攢鈹€ PRD.md                  鈫?闇€姹傛枃妗ｏ紙閿氱偣锛?鈹溾攢鈹€ DEVELOPMENT_PLAN.md     鈫?寮€鍙戣鍒掞紙閿氱偣锛?鈹溾攢鈹€ README.md               鈫?椤圭洰璇存槑
-鈹溾攢鈹€ backend/                鈫?Spring Boot 鍚庣
-鈹?  鈹溾攢鈹€ pom.xml
-鈹?  鈹斺攢鈹€ src/main/java/com/ai_grader/
-鈹?      鈹溾攢鈹€ ai_graderApplication.java
-鈹?      鈹溾攢鈹€ controller/     鈫?REST 鎺у埗鍣?鈹?      鈹溾攢鈹€ service/        鈫?涓氬姟鏈嶅姟
-鈹?      鈹溾攢鈹€ ai/             鈫?AI 鎵规敼寮曟搸
-鈹?      鈹溾攢鈹€ repository/     鈫?JPA Repository
-鈹?      鈹溾攢鈹€ entity/         鈫?瀹炰綋绫?鈹?      鈹溾攢鈹€ dto/            鈫?DTO
-鈹?      鈹溾攢鈹€ config/         鈫?閰嶇疆绫?鈹?      鈹斺攢鈹€ common/         鈫?宸ュ叿/寮傚父/甯搁噺
-鈹溾攢鈹€ frontend/               鈫?React 鍓嶇
-鈹?  鈹溾攢鈹€ src/
-鈹?  鈹?  鈹溾攢鈹€ pages/          鈫?teacher/ student/ admin/
-鈹?  鈹?  鈹溾攢鈹€ components/     鈫?鍏变韩缁勪欢
-鈹?  鈹?  鈹溾攢鈹€ hooks/          鈫?鑷畾涔?Hooks
-鈹?  鈹?  鈹溾攢鈹€ services/       鈫?API 璋冪敤
-鈹?  鈹?  鈹溾攢鈹€ store/          鈫?Zustand 鐘舵€佺鐞?鈹?  鈹?  鈹溾攢鈹€ router/         鈫?璺敱閰嶇疆
-鈹?  鈹?  鈹斺攢鈹€ types/          鈫?TypeScript 绫诲瀷瀹氫箟
-鈹?  鈹斺攢鈹€ package.json
-鈹斺攢鈹€ skills/                 鈫?Codex skills
+AIGrader/
+├── AGENTS.md               ← 本文件
+├── PRD.md                  ← 需求文档（锚点）
+├── DEVELOPMENT_PLAN.md     ← 开发计划（锚点）
+├── ENV_INFO.md             ← 环境速查
+├── README.md
+├── backend/                ← Spring Boot 后端
+│   ├── pom.xml
+│   └── src/main/java/com/aigrader/
+│       ├── AIGraderApplication.java
+│       ├── controller/     ← REST 控制器（5 个）
+│       ├── service/        ← 业务服务（5 个）
+│       ├── ai/             ← AI 批改引擎（3 种策略）
+│       ├── repository/     ← JPA Repository（8 个）
+│       ├── entity/         ← 实体类（8 个）
+│       ├── dto/            ← DTO（5 个）
+│       ├── config/         ← 配置类（2 个）
+│       └── common/         ← 工具/异常/枚举（3 个）
+├── frontend/               ← React 前端
+│   ├── src/
+│   │   ├── pages/          ← teacher/ student/ admin/
+│   │   ├── components/     ← 共享组件
+│   │   ├── hooks/          ← 自定义 Hooks
+│   │   ├── services/       ← API 调用
+│   │   ├── store/          ← Zustand 状态管理
+│   │   ├── router/         ← 路由配置
+│   │   └── types/          ← TypeScript 类型定义
+│   └── package.json
+└── skills/                 ← Codex skills
 ```
 
-## 鏍稿績绾︽潫
+## 核心约束
 
-### 鏂囦欢鎿嶄綔
-- **绂佹** 鎵归噺鍒犻櫎鏂囦欢鎴栫洰褰曪紙`del /s`銆乣rd /s`銆乣rmdir /s`銆乣rm -rf`銆乣Remove-Item -Recurse`锛?- 鍒犻櫎鏂囦欢鏃讹紝涓€娆″彧鑳藉垹闄や竴涓槑纭矾寰勭殑鏂囦欢
-- 闇€瑕佹壒閲忓垹闄ゆ椂锛屽仠姝㈡搷浣滃苟璇锋眰鐢ㄦ埛鎵嬪姩澶勭悊
+### 文件操作
+- **禁止** 批量删除文件或目录（`del /s`、`rd /s`、`rm -rf`、`Remove-Item -Recurse`）
+- 删除文件时，一次只能删除一个明确路径的文件
+- 需要批量删除时，停止操作并请求用户手动处理
 
-### 姣忔瀵硅瘽鑼冨洿
-- 姣忔瀵硅瘽鍙仛鐒?**涓€涓枃浠?/ 涓€涓被**
-- 瀵硅瘽寮€濮嬪墠锛屽彂閫?`PRD.md` 鍜?`DEVELOPMENT_PLAN.md` 浣滀负涓婁笅鏂囬敋鐐?- 浠诲姟瀹屾垚鍚庡叧闂璇濓紝鏂板紑瀵硅瘽澶勭悊涓嬩竴涓换鍔?
-### 浠ｇ爜瑙勮寖
-- **Java锛?* 鏍囧噯 Spring Boot 鍒嗗眰鏋舵瀯锛圕ontroller 鈫?Service 鈫?Repository锛?- **React锛?* 鍑芥暟缁勪欢 + Hooks锛孴ypeScript 涓ユ牸妯″紡
-- 浠ｇ爜搴旇嚜瑙ｉ噴锛岀姝㈡坊鍔犱笉蹇呰鐨勬敞閲?- 绂佹娣诲姞鐗堟潈/license 澹版槑
+### 每次对话范围
+- 每次对话只聚焦一个文件 / 一个类
+- 对话开始前，发送 `PRD.md` 和 `DEVELOPMENT_PLAN.md` 作为上下文锚点
+- 任务完成后关闭对话，新开对话处理下一个任务
 
-### 閰嶇疆瀹夊叏
-- API Key銆佹暟鎹簱瀵嗙爜绛夋晱鎰熶俊鎭娇鐢ㄧ幆澧冨彉閲?- 閰嶇疆妯℃澘鏂囦欢浣跨敤 `.example` 鍚庣紑锛堝 `application-local.yml.example`锛?- `.env` 鍜?`application-local.yml` 宸插姞鍏?`.gitignore`
+### 代码规范
+- **Java：** 标准 Spring Boot 分层架构（Controller → Service → Repository）
+- **React：** 函数组件 + Hooks，TypeScript 严格模式
+- 代码应自解释，禁止添加不必要的注释
+- 禁止添加版权/license 声明
 
-### AI 鑱岃矗杈圭晫
-- **AI 璐熻矗锛?* 浠ｇ爜瀹炵幇 + 娴嬭瘯缂栧啓 + 鏂囨。缁存姢
-- **寮€鍙戣€呰礋璐ｏ細** 鏈€缁堝喅绛?+ 浠ｇ爜瀹℃煡 + 鍚堝苟
+### 配置安全
+- API Key、数据库密码等敏感信息使用环境变量
+- 配置模板文件使用 `.example` 后缀
+- `.env` 和 `application-local.yml` 已加入 `.gitignore`
 
-## 鐜鍙橀噺
+### AI 职责边界
+- **AI 负责：** 代码实现 + 测试编写 + 文档维护
+- **开发者负责：** 最终决策 + 代码审查 + 合并
 
-| 鍙橀噺鍚?| 璇存槑 | 绀轰緥 |
+## 环境变量
+
+| 变量名 | 说明 | 示例 |
 |---|---|---|
 | `DEEPSEEK_API_KEY` | DeepSeek API Key | `sk-xxx` |
-| `DB_HOST` | PostgreSQL 涓绘満 | `10.237.255.9` |
-| `DB_PORT` | PostgreSQL 绔彛 | `5432` |
-| `DB_NAME` | 鏁版嵁搴撳悕 | `ai_grader` |
-| `DB_USER` | 鏁版嵁搴撶敤鎴?| `ai_grader` |
-| `DB_PASSWORD` | 鏁版嵁搴撳瘑鐮?| `ai_grader123` |
-| `REDIS_HOST` | Redis 涓绘満 | `10.237.255.9` |
-| `REDIS_PORT` | Redis 绔彛 | `6379` |
-| `SERVER_PORT` | 鏈嶅姟绔彛 | `8080` |
+| `DB_HOST` | PostgreSQL 主机 | `10.237.255.9` |
+| `DB_PORT` | PostgreSQL 端口 | `5432` |
+| `DB_NAME` | 数据库名 | `ai_grader` |
+| `DB_USER` | 数据库用户 | `ai_grader` |
+| `DB_PASSWORD` | 数据库密码 | `ai_grader123` |
+| `REDIS_HOST` | Redis 主机 | `10.237.255.9` |
+| `REDIS_PORT` | Redis 端口 | `6379` |
+| `SERVER_PORT` | 服务端口 | `8080` |
 
-## 鍏抽敭鍙傝€?
-- 闇€姹傛枃妗ｏ細`PRD.md`
-- 寮€鍙戣鍒掞細`DEVELOPMENT_PLAN.md`
-- DeepSeek API 鏂囨。锛歨ttps://api-docs.deepseek.com/
-- Spring AI 鏂囨。锛歨ttps://docs.spring.io/spring-ai/reference/
+## 关键参考
+
+- 需求文档：`PRD.md`
+- 开发计划：`DEVELOPMENT_PLAN.md`
+- 环境速查：`ENV_INFO.md`
+- DeepSeek API 文档：https://api-docs.deepseek.com/
+- Spring AI 文档：https://docs.spring.io/spring-ai/reference/
