@@ -1,15 +1,15 @@
-﻿# AIGrader Dev Skill
+# AIGrader 开发辅助 Skill
 
-This skill provides development assistance for the AIGrader project.
+此 skill 为 AIGrader 项目提供开发辅助。
 
-## Context
+## 项目上下文
 
-AIGrader is an AI homework grading platform. See `PRD.md` and `DEVELOPMENT_PLAN.md` in the project root.
+AIGrader 是 AI 作业批改平台。详细需求见项目根目录的 `PRD.md` 和 `DEVELOPMENT_PLAN.md`。
 
-## Guidelines
+## 开发规范
 
-- Follow the architecture in PRD.md Section 4
-- Java code in `backend/`, React code in `frontend/`
-- Never batch delete files
-- Each change should focus on one file/class
-- Sensitive config goes in environment variables, not committed files
+- 后端代码位于 `backend/`，前端代码位于 `frontend/`
+- 遵循 PRD.md 第四节中的系统架构设计
+- 每次改动聚焦一个文件/一个类
+- 敏感配置通过环境变量注入，不提交到仓库
+- 禁止批量删除文件
