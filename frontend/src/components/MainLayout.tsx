@@ -10,18 +10,18 @@ import { useAuthStore } from '../store/useAuthStore';
 const { Header, Sider, Content } = Layout;
 
 const teacherMenu = [
-  { key: '/teacher/assignments', icon: <FileTextOutlined />, label: 'Assignments' },
-  { key: '/teacher/statistics', icon: <BarChartOutlined />, label: 'Statistics' },
+  { key: '/teacher/assignments', icon: <FileTextOutlined />, label: '作业管理' },
+  { key: '/teacher/statistics', icon: <BarChartOutlined />, label: '班级统计' },
 ];
 
 const studentMenu = [
-  { key: '/student/assignments', icon: <FormOutlined />, label: 'My Assignments' },
+  { key: '/student/assignments', icon: <FormOutlined />, label: '我的作业' },
 ];
 
 const adminMenu = [
-  { key: '/admin/questions', icon: <EditOutlined />, label: 'Question Bank' },
-  { key: '/admin/users', icon: <UserOutlined />, label: 'Users' },
-  { key: '/admin/monitor', icon: <MonitorOutlined />, label: 'Monitor' },
+  { key: '/admin/questions', icon: <EditOutlined />, label: '题库管理' },
+  { key: '/admin/users', icon: <UserOutlined />, label: '用户管理' },
+  { key: '/admin/monitor', icon: <MonitorOutlined />, label: '质量监控' },
 ];
 
 export default function MainLayout({ role }: { role: string }) {
@@ -42,7 +42,7 @@ export default function MainLayout({ role }: { role: string }) {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider width={220} theme="dark">
         <div style={{ color: '#fff', padding: '20px 16px', fontSize: 18, fontWeight: 700 }}>
-          AIGrader
+          AI 作业批改
         </div>
         <Menu
           theme="dark"
@@ -55,7 +55,7 @@ export default function MainLayout({ role }: { role: string }) {
       <Layout>
         <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <Button icon={<LogoutOutlined />} onClick={() => { logout(); navigate('/login'); }}>
-            Logout
+            退出登录
           </Button>
         </Header>
         <Content style={{ margin: 16, padding: 24, background: '#fff', borderRadius: 8 }}>

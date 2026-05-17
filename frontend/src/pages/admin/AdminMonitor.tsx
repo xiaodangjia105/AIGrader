@@ -24,12 +24,12 @@ export default function AdminMonitor() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>System Monitor</h2>
+      <h2 style={{ marginBottom: 16 }}>系统监控</h2>
       <Row gutter={16}>
-        <Col span={6}><Card><Statistic title="Total Users" value={users.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="Total Questions" value={questions.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="Avg Score" value={stats?.averageScore || 0} precision={1} /></Card></Col>
-        <Col span={6}><Card><Statistic title="Completion Rate" value={stats ? (stats.completionRate * 100).toFixed(1) : 0} suffix="%" /></Card></Col>
+        <Col span={6}><Card><Statistic title="用户总数" value={users.length} /></Card></Col>
+        <Col span={6}><Card><Statistic title="题目总数" value={questions.length} /></Card></Col>
+        <Col span={6}><Card><Statistic title="平均分" value={stats?.averageScore || 0} precision={1} /></Card></Col>
+        <Col span={6}><Card><Statistic title="完成率" value={stats ? (stats.completionRate * 100).toFixed(1) : 0} suffix="%" /></Card></Col>
       </Row>
     </div>
   );

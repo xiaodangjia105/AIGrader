@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Form, Input, Select, Button, Checkbox, DatePicker, message, Space } from 'antd';
+import { Form, Input, Button, Checkbox, DatePicker, message, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { api } from '../../services/api';
@@ -18,7 +18,7 @@ export default function TeacherCreateAssignment() {
 
   const handleSubmit = async (values: any) => {
     if (selectedIds.length === 0) {
-      message.warning('Please select at least one question');
+      message.warning('请至少选择一道题目');
       return;
     }
     try {
@@ -29,35 +29,40 @@ export default function TeacherCreateAssignment() {
         dueDate: values.dueDate?.toISOString() || new Date().toISOString(),
         questionIds: selectedIds,
       });
-      message.success('Assignment created!');
+      message.success('作业创建成功！');
       navigate('/teacher/assignments');
     } catch {
-      message.error('Failed to create assignment');
+      message.error('创建失败');
     }
+  };
+
+  const typeLabel: Record<string, string> = {
+    CHOICE: '选择', TRUE_FALSE: '判断', FILL_BLANK: '填空',
+    SHORT_ANSWER: '简答', ESSAY: '作文',
   };
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Create Assignment</h2>
+      <h2 style={{ marginBottom: 16 }}>布置作业</h2>
       <Form form={form} layout="vertical" onFinish={handleSubmit} style={{ maxWidth: 600 }}>
-        <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-          <Input placeholder="e.g., Week 3 Math Homework" />
+        <Form.Item name="title" label="作业标题" rules={[{ required: true, message: '请输入作业标题' }]}>
+          <Input placeholder="例如：第三周数学作业" />
         </Form.Item>
-        <Form.Item name="dueDate" label="Due Date">
-          <DatePicker style={{ width: '100%' }} />
+        <Form.Item name="dueDate" label="截止日期">
+          <DatePicker style={{ width: '100%' }} placeholder="选择截止日期" />
         </Form.Item>
-        <Form.Item label="Select Questions">
+        <Form.Item label="选择题目">
           <Checkbox.Group onChange={(vals) => setSelectedIds(vals as number[])}>
             <Space direction="vertical">
               {questions.map((q) => (
                 <Checkbox key={q.id} value={q.id}>
-                  [{q.type}] {q.content.substring(0, 60)}...
+                  [{typeLabel[q.type] || q.type}] {q.subject} - {q.content.substring(0, 50)}...
                 </Checkbox>
               ))}
             </Space>
           </Checkbox.Group>
         </Form.Item>
-        <Button type="primary" htmlType="submit">Create Assignment</Button>
+        <Button type="primary" htmlType="submit">创建作业</Button>
       </Form>
     </div>
   );

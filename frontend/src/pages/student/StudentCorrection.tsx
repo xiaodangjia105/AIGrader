@@ -11,16 +11,16 @@ export default function StudentCorrection() {
 
   const handleSubmit = async () => {
     if (!answerId || !newAnswer.trim()) {
-      message.warning('Please enter your corrected answer');
+      message.warning('请输入订正后的答案');
       return;
     }
     setSubmitting(true);
     try {
       await api.submitCorrection({ submissionAnswerId: Number(answerId), newAnswer });
-      message.success('Correction submitted!');
+      message.success('订正提交成功！');
       navigate(-1);
     } catch {
-      message.error('Failed to submit correction');
+      message.error('订正提交失败');
     } finally {
       setSubmitting(false);
     }
@@ -28,16 +28,16 @@ export default function StudentCorrection() {
 
   return (
     <div style={{ maxWidth: 600 }}>
-      <h2 style={{ marginBottom: 16 }}>Correct Your Answer</h2>
+      <h2 style={{ marginBottom: 16 }}>错题订正</h2>
       <Card>
         <Input.TextArea
           rows={6}
           value={newAnswer}
           onChange={(e) => setNewAnswer(e.target.value)}
-          placeholder="Write your corrected answer here..."
+          placeholder="在此输入订正后的答案..."
         />
         <Button type="primary" onClick={handleSubmit} loading={submitting} style={{ marginTop: 12 }}>
-          Submit Correction
+          提交订正
         </Button>
       </Card>
     </div>

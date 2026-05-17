@@ -11,18 +11,20 @@ export default function AdminUsers() {
     api.getUsers().then(setUsers).finally(() => setLoading(false));
   }, []);
 
+  const roleNames: Record<string, string> = { TEACHER: '教师', STUDENT: '学生', ADMIN: '管理员' };
+
   const columns = [
-    { title: 'ID', dataIndex: 'id', key: 'id', width: 60 },
-    { title: 'Username', dataIndex: 'username', key: 'username' },
-    { title: 'Nickname', dataIndex: 'nickname', key: 'nickname' },
-    { title: 'Role', dataIndex: 'role', key: 'role', render: (r: string) => <Tag>{r}</Tag> },
-    { title: 'Class', dataIndex: 'classId', key: 'classId' },
+    { title: '编号', dataIndex: 'id', key: 'id', width: 60 },
+    { title: '用户名', dataIndex: 'username', key: 'username' },
+    { title: '昵称', dataIndex: 'nickname', key: 'nickname' },
+    { title: '角色', dataIndex: 'role', key: 'role', render: (r: string) => <Tag>{roleNames[r] || r}</Tag> },
+    { title: '班级', dataIndex: 'classId', key: 'classId' },
   ];
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>User Management</h2>
-      <Table dataSource={users} columns={columns} rowKey="id" loading={loading} />
+      <h2 style={{ marginBottom: 16 }}>用户管理</h2>
+      <Table dataSource={users} columns={columns} rowKey="id" loading={loading} locale={{ emptyText: '暂无用户' }} />
     </div>
   );
 }

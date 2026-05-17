@@ -37,10 +37,10 @@ export default function StudentAnswer() {
       }));
       const submission = await api.submit(Number(id), user.id, answerList);
       await api.triggerGrading(submission.id);
-      message.success('Submitted! Redirecting to results...');
-      setTimeout(() => navigate(`/student/results/${submission.id}`), 1000);
+      message.success('提交成功！正在跳转到批改结果...');
+      setTimeout(() => navigate(`/student/results/${submission.id}`), 1500);
     } catch {
-      message.error('Submission failed');
+      message.error('提交失败');
     } finally {
       setSubmitting(false);
     }
@@ -48,7 +48,7 @@ export default function StudentAnswer() {
 
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
 
-  const renderQuestionInput = (q: Question) => {
+  const renderQuestionInput = (q: Question, idx: number) => {
     const val = answers[q.id] || '';
     switch (q.type) {
       case QuestionType.CHOICE:
@@ -65,8 +65,8 @@ export default function StudentAnswer() {
       case QuestionType.TRUE_FALSE:
         return (
           <Radio.Group value={val} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}>
-            <Radio value="TRUE">True</Radio>
-            <Radio value="FALSE">False</Radio>
+            <Radio value="TRUE">正确</Radio>
+            <Radio value="FALSE">错误</Radio>
           </Radio.Group>
         );
       default:
@@ -75,22 +75,27 @@ export default function StudentAnswer() {
             rows={4}
             value={val}
             onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
-            placeholder="Type your answer here..."
+            placeholder="在此输入你的答案..."
           />
         );
     }
   };
 
+  const typeNames: Record<string, string> = {
+    CHOICE: '选择题', TRUE_FALSE: '判断题', FILL_BLANK: '填空题',
+    SHORT_ANSWER: '简答题', ESSAY: '作文题',
+  };
+
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Answer Questions</h2>
+      <h2 style={{ marginBottom: 16 }}>作答</h2>
       {questions.map((q, idx) => (
-        <Card key={q.id} title={`Q${idx + 1}. [${q.type}] ${q.content}`} style={{ marginBottom: 16 }}>
-          {renderQuestionInput(q)}
+        <Card key={q.id} title={`第${idx + 1}题 [${typeNames[q.type] || q.type}] ${q.content}`} style={{ marginBottom: 16 }}>
+          {renderQuestionInput(q, idx)}
         </Card>
       ))}
       <Button type="primary" size="large" onClick={handleSubmit} loading={submitting} block>
-        Submit Answers
+        提交答案
       </Button>
     </div>
   );
