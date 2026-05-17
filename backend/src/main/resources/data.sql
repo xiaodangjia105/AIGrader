@@ -1,4 +1,4 @@
--- AIGrader Seed Data
+-- ai_grader Seed Data
 -- Run after pgvector extension is enabled
 
 -- Enable pgvector
