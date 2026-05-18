@@ -1,258 +1,258 @@
-import { useEffect, useState, useRef } from 'react';
-import { Table, Button, Modal, Form, Input, Select, message, Space, Popconfirm, Tabs, Upload, Alert, Descriptions } from 'antd';
-import { PlusOutlined, ImportOutlined, UploadOutlined } from '@ant-design/icons';
-import { api } from '../../services/api';
-import { QuestionType } from '../../types';
-import type { Question, BatchImportResult } from '../../types';
-
-export default function AdminQuestions() {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [form] = Form.useForm();
-
-  const [importModalVisible, setImportModalVisible] = useState(false);
-  const [importResult, setImportResult] = useState<BatchImportResult | null>(null);
-  const [importing, setImporting] = useState(false);
-  const [jsonText, setJsonText] = useState('');
-  const csvFileRef = useRef<File | null>(null);
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      setQuestions(await api.getQuestions());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const handleSave = async (values: any) => {
-    try {
-      if (editingId) {
-        await api.updateQuestion(editingId, values);
-        message.success('∏¸–¬≥…π¶');
-      } else {
-        await api.createQuestion(values);
-        message.success('¥¥Ω®≥…π¶');
-      }
-      setModalVisible(false);
-      form.resetFields();
-      load();
-    } catch {
-      message.error('±£¥Ê ß∞‹');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    await api.deleteQuestion(id);
-    message.success('“—…æ≥˝');
-    load();
-  };
-
-  const openEdit = (q: Question) => {
-    setEditingId(q.id);
-    form.setFieldsValue(q);
-    setModalVisible(true);
-  };
-
-  const openNew = () => {
-    setEditingId(null);
-    form.resetFields();
-    setModalVisible(true);
-  };
-
-  const openImport = () => {
-    setImportResult(null);
-    setJsonText('');
-    csvFileRef.current = null;
-    setImportModalVisible(true);
-  };
-
-  const handleJsonImport = async () => {
-    if (!jsonText.trim()) {
-      message.warning('«Î ‰»Î JSON  ˝æ›');
-      return;
-    }
-    try {
-      const parsed = JSON.parse(jsonText);
-      const items = Array.isArray(parsed) ? parsed : [parsed];
-      setImporting(true);
-      const result = await api.batchImportQuestions(items);
-      setImportResult(result);
-      message.success(`µº»ÎÕÍ≥…£∫≥…π¶ ${result.successCount} Ãı£¨ ß∞‹ ${result.failCount} Ãı`);
-      load();
-    } catch (e: any) {
-      message.error('JSON Ω‚Œˆ ß∞‹£∫' + e.message);
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const handleCsvImport = async () => {
-    if (!csvFileRef.current) {
-      message.warning('«Î—°‘Ò CSV Œƒº˛');
-      return;
-    }
-    try {
-      setImporting(true);
-      const result = await api.batchImportCsv(csvFileRef.current);
-      setImportResult(result);
-      message.success(`µº»ÎÕÍ≥…£∫≥…π¶ ${result.successCount} Ãı£¨ ß∞‹ ${result.failCount} Ãı`);
-      load();
-    } catch (e: any) {
-      message.error('CSV µº»Î ß∞‹£∫' + e.message);
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const typeLabels: Record<string, string> = {
-    CHOICE: '—°‘ÒÃ‚', TRUE_FALSE: '≈–∂œÃ‚', FILL_BLANK: 'ÃÓø’Ã‚',
-    SHORT_ANSWER: 'ºÚ¥Ã‚', ESSAY: '◊˜ŒƒÃ‚',
-  };
-
-  const columns = [
-    { title: '±‡∫≈', dataIndex: 'id', key: 'id', width: 50 },
-    { title: 'Ã‚–Õ', dataIndex: 'type', key: 'type', width: 90, render: (t: string) => typeLabels[t] || t },
-    { title: '—ßø∆', dataIndex: 'subject', key: 'subject', width: 70, render: (s: string) => ({ Math: ' ˝—ß', Chinese: '”ÔŒƒ', Science: 'ø∆—ß', English: '”¢”Ô' })[s] || s },
-    { title: 'ƒ—∂»', dataIndex: 'difficulty', key: 'difficulty', width: 70, render: (d: string) => ({ EASY: 'ºÚµ•', MEDIUM: '÷–µ»', HARD: '¿ßƒ—' })[d] || d },
-    { title: 'Ã‚ƒøƒ⁄»›', dataIndex: 'content', key: 'content', ellipsis: true },
-    { title: '¥∞∏', dataIndex: 'answer', key: 'answer', ellipsis: true, width: 80 },
-    {
-      title: '≤Ÿ◊˜', key: 'actions', width: 160,
-      render: (_: any, record: Question) => (
-        <Space>
-          <Button size="small" onClick={() => openEdit(record)}>±‡º≠</Button>
-          <Popconfirm title="»∑∂®…æ≥˝£ø" onConfirm={() => handleDelete(record.id)} okText="»∑∂®" cancelText="»°œ˚">
-            <Button size="small" danger>…æ≥˝</Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2>Ã‚ø‚π‹¿Ì</h2>
-        <Space>
-          <Button icon={<ImportOutlined />} onClick={openImport}>≈˙¡øµº»Î</Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openNew}>ÃÌº”Ã‚ƒø</Button>
-        </Space>
-      </div>
-      <Table dataSource={questions} columns={columns} rowKey="id" loading={loading} locale={{ emptyText: '‘›ŒﬁÃ‚ƒø' }} />
-
-      <Modal
-        title={editingId ? '±‡º≠Ã‚ƒø' : 'ÃÌº”Ã‚ƒø'}
-        open={modalVisible}
-        onOk={() => form.submit()}
-        onCancel={() => { setModalVisible(false); form.resetFields(); }}
-        width={700}
-        okText="±£¥Ê"
-        cancelText="»°œ˚"
-      >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item name="type" label="Ã‚–Õ" rules={[{ required: true, message: '«Î—°‘ÒÃ‚–Õ' }]}>
-            <Select options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} />
-          </Form.Item>
-          <Form.Item name="subject" label="—ßø∆" rules={[{ required: true, message: '«Î—°‘Ò—ßø∆' }]}>
-            <Select options={[
-              { value: 'Math', label: ' ˝—ß' }, { value: 'Chinese', label: '”ÔŒƒ' },
-              { value: 'Science', label: 'ø∆—ß' }, { value: 'English', label: '”¢”Ô' },
-            ]} />
-          </Form.Item>
-          <Form.Item name="difficulty" label="ƒ—∂»">
-            <Select options={[
-              { value: 'EASY', label: 'ºÚµ•' }, { value: 'MEDIUM', label: '÷–µ»' }, { value: 'HARD', label: '¿ßƒ—' },
-            ]} />
-          </Form.Item>
-          <Form.Item name="content" label="Ã‚ƒøƒ⁄»›" rules={[{ required: true, message: '«Î ‰»ÎÃ‚ƒøƒ⁄»›' }]}>
-            <Input.TextArea rows={3} />
-          </Form.Item>
-          <Form.Item name="answer" label="¥∞∏">
-            <Input.TextArea rows={2} />
-          </Form.Item>
-          <Form.Item name="rubric" label="∆¿∑÷±Í◊º£®÷˜π€Ã‚”√£©">
-            <Input.TextArea rows={2} />
-          </Form.Item>
-          <Form.Item name="options" label="—°œÓ£®—°‘ÒÃ‚”√£¨JSON∏Ò Ω£©">
-            <Input.TextArea rows={2} placeholder='{"A":"—°œÓAƒ⁄»›","B":"—°œÓBƒ⁄»›"}' />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="≈˙¡øµº»ÎÃ‚ƒø"
-        open={importModalVisible}
-        onCancel={() => setImportModalVisible(false)}
-        width={700}
-        footer={null}
-      >
-        <Tabs
-          items={[
-            {
-              key: 'json',
-              label: '’≥Ã˘ JSON',
-              children: (
-                <div>
-                  <Input.TextArea
-                    rows={8}
-                    placeholder={`[\n  {\n    "type": "CHOICE",\n    "subject": "Math",\n    "difficulty": "EASY",\n    "content": "1+1=?",\n    "answer": "2",\n    "options": "{\\"A\\":\\"1\\",\\"B\\":\\"2\\"}"\n  }\n]`}
-                    value={jsonText}
-                    onChange={e => setJsonText(e.target.value)}
-                  />
-                  <Button type="primary" onClick={handleJsonImport} loading={importing} style={{ marginTop: 12 }}>
-                    Ã·Ωªµº»Î
-                  </Button>
-                </div>
-              ),
-            },
-            {
-              key: 'csv',
-              label: '…œ¥´ CSV',
-              children: (
-                <div>
-                  <Upload
-                    accept=".csv"
-                    maxCount={1}
-                    beforeUpload={file => { csvFileRef.current = file; return false; }}
-                    onRemove={() => { csvFileRef.current = null; }}
-                  >
-                    <Button icon={<UploadOutlined />}>—°‘Ò CSV Œƒº˛</Button>
-                  </Upload>
-                  <p style={{ color: '#888', marginTop: 8 }}>
-                    CSV ±ÌÕ∑£∫type,subject,difficulty,content,answer,rubric,options
-                  </p>
-                  <Button type="primary" onClick={handleCsvImport} loading={importing} style={{ marginTop: 12 }}>
-                    Ã·Ωªµº»Î
-                  </Button>
-                </div>
-              ),
-            },
-          ]}
-        />
-        {importResult && (
-          <Alert
-            type={importResult.failCount === 0 ? 'success' : 'warning'}
-            message={
-              <span>
-                ≥…π¶ <b>{importResult.successCount}</b> Ãı£¨ ß∞‹ <b>{importResult.failCount}</b> Ãı
-              </span>
-            }
-            description={
-              importResult.errors.length > 0 && (
-                <ul style={{ margin: 0, paddingLeft: 20 }}>
-                  {importResult.errors.map((err, idx) => <li key={idx}>{err}</li>)}
-                </ul>
-              )
-            }
-            style={{ marginTop: 16 }}
-          />
-        )}
-      </Modal>
-    </div>
-  );
+import { useEffect, useState, useRef } from 'react';
+import { Table, Button, Modal, Form, Input, Select, message, Space, Popconfirm, Tabs, Upload, Alert, Descriptions } from 'antd';
+import { PlusOutlined, ImportOutlined, UploadOutlined } from '@ant-design/icons';
+import { api } from '../../services/api';
+import { QuestionType } from '../../types';
+import type { Question, BatchImportResult } from '../../types';
+
+export default function AdminQuestions() {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form] = Form.useForm();
+
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importResult, setImportResult] = useState<BatchImportResult | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [jsonText, setJsonText] = useState('');
+  const csvFileRef = useRef<File | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      setQuestions(await api.getQuestions());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async (values: any) => {
+    try {
+      if (editingId) {
+        await api.updateQuestion(editingId, values);
+        message.success('Êõ¥Êñ∞ÊàêÂäü');
+      } else {
+        await api.createQuestion(values);
+        message.success('ÂàõÂª∫ÊàêÂäü');
+      }
+      setModalVisible(false);
+      form.resetFields();
+      load();
+    } catch {
+      message.error('‰øùÂ≠òÂ§±Ë¥•');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    await api.deleteQuestion(id);
+    message.success('Â∑≤Âà†Èô§');
+    load();
+  };
+
+  const openEdit = (q: Question) => {
+    setEditingId(q.id);
+    form.setFieldsValue(q);
+    setModalVisible(true);
+  };
+
+  const openNew = () => {
+    setEditingId(null);
+    form.resetFields();
+    setModalVisible(true);
+  };
+
+  const openImport = () => {
+    setImportResult(null);
+    setJsonText('');
+    csvFileRef.current = null;
+    setImportModalVisible(true);
+  };
+
+  const handleJsonImport = async () => {
+    if (!jsonText.trim()) {
+      message.warning('ËØ∑ËæìÂÖ• JSON Êï∞ÊçÆ');
+      return;
+    }
+    try {
+      const parsed = JSON.parse(jsonText);
+      const items = Array.isArray(parsed) ? parsed : [parsed];
+      setImporting(true);
+      const result = await api.batchImportQuestions(items);
+      setImportResult(result);
+      message.success(`ÂØºÂÖ•ÂÆåÊàêÔºöÊàêÂäü ${result.successCount} Êù°ÔºåÂ§±Ë¥• ${result.failCount} Êù°`);
+      load();
+    } catch (e: any) {
+      message.error('JSON Ëß£ÊûêÂ§±Ë¥•Ôºö' + e.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleCsvImport = async () => {
+    if (!csvFileRef.current) {
+      message.warning('ËØ∑ÈÄâÊã© CSV Êñá‰ª∂');
+      return;
+    }
+    try {
+      setImporting(true);
+      const result = await api.batchImportCsv(csvFileRef.current);
+      setImportResult(result);
+      message.success(`ÂØºÂÖ•ÂÆåÊàêÔºöÊàêÂäü ${result.successCount} Êù°ÔºåÂ§±Ë¥• ${result.failCount} Êù°`);
+      load();
+    } catch (e: any) {
+      message.error('CSV ÂØºÂÖ•Â§±Ë¥•Ôºö' + e.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const typeLabels: Record<string, string> = {
+    CHOICE: 'ÈÄâÊã©È¢ò', TRUE_FALSE: 'Âà§Êñ≠È¢ò', FILL_BLANK: 'Â°´Á©∫È¢ò',
+    SHORT_ANSWER: 'ÁÆÄÁ≠îÈ¢ò', ESSAY: '‰ΩúÊñáÈ¢ò',
+  };
+
+  const columns = [
+    { title: 'ÁºñÂè∑', dataIndex: 'id', key: 'id', width: 50 },
+    { title: 'È¢òÂûã', dataIndex: 'type', key: 'type', width: 90, render: (t: string) => typeLabels[t] || t },
+    { title: 'Â≠¶Áßë', dataIndex: 'subject', key: 'subject', width: 70, render: (s: string) => ({ Math: 'Êï∞Â≠¶', Chinese: 'ËØ≠Êñá', Science: 'ÁßëÂ≠¶', English: 'Ëã±ËØ≠' })[s] || s },
+    { title: 'ÈöæÂ∫¶', dataIndex: 'difficulty', key: 'difficulty', width: 70, render: (d: string) => ({ EASY: 'ÁÆÄÂçï', MEDIUM: '‰∏≠Á≠â', HARD: 'Âõ∞Èöæ' })[d] || d },
+    { title: 'È¢òÁõÆÂÜÖÂÆπ', dataIndex: 'content', key: 'content', ellipsis: true },
+    { title: 'Á≠îÊ°à', dataIndex: 'answer', key: 'answer', ellipsis: true, width: 80 },
+    {
+      title: 'Êìç‰Ωú', key: 'actions', width: 160,
+      render: (_: any, record: Question) => (
+        <Space>
+          <Button size="small" onClick={() => openEdit(record)}>ÁºñËæë</Button>
+          <Popconfirm title="Á°ÆÂÆöÂà†Èô§Ôºü" onConfirm={() => handleDelete(record.id)} okText="Á°ÆÂÆö" cancelText="ÂèñÊ∂à">
+            <Button size="small" danger>Âà†Èô§</Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2>È¢òÂ∫ìÁÆ°ÁêÜ</h2>
+        <Space>
+          <Button icon={<ImportOutlined />} onClick={openImport}>ÊâπÈáèÂØºÂÖ•</Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={openNew}>Ê∑ªÂä†È¢òÁõÆ</Button>
+        </Space>
+      </div>
+      <Table dataSource={questions} columns={columns} rowKey="id" loading={loading} locale={{ emptyText: 'ÊöÇÊó†È¢òÁõÆ' }} />
+
+      <Modal
+        title={editingId ? 'ÁºñËæëÈ¢òÁõÆ' : 'Ê∑ªÂä†È¢òÁõÆ'}
+        open={modalVisible}
+        onOk={() => form.submit()}
+        onCancel={() => { setModalVisible(false); form.resetFields(); }}
+        width={700}
+        okText="‰øùÂ≠ò"
+        cancelText="ÂèñÊ∂à"
+      >
+        <Form form={form} layout="vertical" onFinish={handleSave}>
+          <Form.Item name="type" label="È¢òÂûã" rules={[{ required: true, message: 'ËØ∑ÈÄâÊã©È¢òÂûã' }]}>
+            <Select options={Object.entries(typeLabels).map(([v, l]) => ({ value: v, label: l }))} />
+          </Form.Item>
+          <Form.Item name="subject" label="Â≠¶Áßë" rules={[{ required: true, message: 'ËØ∑ÈÄâÊã©Â≠¶Áßë' }]}>
+            <Select options={[
+              { value: 'Math', label: 'Êï∞Â≠¶' }, { value: 'Chinese', label: 'ËØ≠Êñá' },
+              { value: 'Science', label: 'ÁßëÂ≠¶' }, { value: 'English', label: 'Ëã±ËØ≠' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="difficulty" label="ÈöæÂ∫¶">
+            <Select options={[
+              { value: 'EASY', label: 'ÁÆÄÂçï' }, { value: 'MEDIUM', label: '‰∏≠Á≠â' }, { value: 'HARD', label: 'Âõ∞Èöæ' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="content" label="È¢òÁõÆÂÜÖÂÆπ" rules={[{ required: true, message: 'ËØ∑ËæìÂÖ•È¢òÁõÆÂÜÖÂÆπ' }]}>
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item name="answer" label="Á≠îÊ°à">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="rubric" label="ËØÑÂàÜÊ†áÂáÜÔºà‰∏ªËßÇÈ¢òÁî®Ôºâ">
+            <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="options" label="ÈÄâÈ°πÔºàÈÄâÊã©È¢òÁî®ÔºåJSONÊ†ºÂºèÔºâ">
+            <Input.TextArea rows={2} placeholder='{"A":"ÈÄâÈ°πAÂÜÖÂÆπ","B":"ÈÄâÈ°πBÂÜÖÂÆπ"}' />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="ÊâπÈáèÂØºÂÖ•È¢òÁõÆ"
+        open={importModalVisible}
+        onCancel={() => setImportModalVisible(false)}
+        width={700}
+        footer={null}
+      >
+        <Tabs
+          items={[
+            {
+              key: 'json',
+              label: 'Á≤òË¥¥ JSON',
+              children: (
+                <div>
+                  <Input.TextArea
+                    rows={8}
+                    placeholder={`[\n  {\n    "type": "CHOICE",\n    "subject": "Math",\n    "difficulty": "EASY",\n    "content": "1+1=?",\n    "answer": "2",\n    "options": "{\\"A\\":\\"1\\",\\"B\\":\\"2\\"}"\n  }\n]`}
+                    value={jsonText}
+                    onChange={e => setJsonText(e.target.value)}
+                  />
+                  <Button type="primary" onClick={handleJsonImport} loading={importing} style={{ marginTop: 12 }}>
+                    Êèê‰∫§ÂØºÂÖ•
+                  </Button>
+                </div>
+              ),
+            },
+            {
+              key: 'csv',
+              label: '‰∏ä‰º† CSV',
+              children: (
+                <div>
+                  <Upload
+                    accept=".csv"
+                    maxCount={1}
+                    beforeUpload={file => { csvFileRef.current = file; return false; }}
+                    onRemove={() => { csvFileRef.current = null; }}
+                  >
+                    <Button icon={<UploadOutlined />}>ÈÄâÊã© CSV Êñá‰ª∂</Button>
+                  </Upload>
+                  <p style={{ color: '#888', marginTop: 8 }}>
+                    CSV Ë°®Â§¥Ôºötype,subject,difficulty,content,answer,rubric,options
+                  </p>
+                  <Button type="primary" onClick={handleCsvImport} loading={importing} style={{ marginTop: 12 }}>
+                    Êèê‰∫§ÂØºÂÖ•
+                  </Button>
+                </div>
+              ),
+            },
+          ]}
+        />
+        {importResult && (
+          <Alert
+            type={importResult.failCount === 0 ? 'success' : 'warning'}
+            message={
+              <span>
+                ÊàêÂäü <b>{importResult.successCount}</b> Êù°ÔºåÂ§±Ë¥• <b>{importResult.failCount}</b> Êù°
+              </span>
+            }
+            description={
+              importResult.errors.length > 0 && (
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {importResult.errors.map((err, idx) => <li key={idx}>{err}</li>)}
+                </ul>
+              )
+            }
+            style={{ marginTop: 16 }}
+          />
+        )}
+      </Modal>
+    </div>
+  );
 }
