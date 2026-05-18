@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Table, Tag, Button, Modal, InputNumber, Input, message, Space } from 'antd';
 import { useParams } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -12,6 +12,8 @@ export default function TeacherGradingReview() {
   const [reviewModal, setReviewModal] = useState<{ visible: boolean; answer: SubmissionAnswer | null }>({ visible: false, answer: null });
   const [reviewScore, setReviewScore] = useState<number>(0);
   const [reviewComment, setReviewComment] = useState('');
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<number | null>(null);
+  const [commentModal, setCommentModal] = useState<{ visible: boolean; comment: string; loading: boolean }>({ visible: false, comment: '', loading: false });
 
   useEffect(() => {
     if (!submissionId) return;
@@ -22,6 +24,7 @@ export default function TeacherGradingReview() {
   }, [submissionId]);
 
   const loadAnswers = async (subId: number) => {
+    setSelectedSubmissionId(subId);
     setLoading(true);
     try {
       const data = await api.getAnswers(subId);
@@ -43,9 +46,21 @@ export default function TeacherGradingReview() {
       await api.reviewAnswer(reviewModal.answer.id, { finalScore: reviewScore, teacherComment: reviewComment });
       message.success('复核提交成功');
       setReviewModal({ visible: false, answer: null });
-      if (submissions.length > 0) loadAnswers(submissions[0].id);
+      if (selectedSubmissionId) loadAnswers(selectedSubmissionId);
     } catch {
       message.error('复核失败');
+    }
+  };
+
+  const handleGenerateComment = async () => {
+    if (!selectedSubmissionId) return;
+    setCommentModal({ visible: true, comment: '', loading: true });
+    try {
+      const data = await api.generateComment(selectedSubmissionId);
+      setCommentModal({ visible: true, comment: data.comment, loading: false });
+    } catch {
+      message.error('生成评语失败');
+      setCommentModal({ visible: false, comment: '', loading: false });
     }
   };
 
@@ -80,7 +95,10 @@ export default function TeacherGradingReview() {
       <Table dataSource={submissions} columns={subCols} rowKey="id" loading={loading} style={{ marginBottom: 24 }} locale={{ emptyText: '暂无提交' }} />
       {answers.length > 0 && (
         <>
-          <h3 style={{ marginBottom: 12 }}>答题明细</h3>
+          <Space style={{ marginBottom: 12 }}>
+            <h3 style={{ margin: 0 }}>答题明细</h3>
+            <Button type="primary" onClick={handleGenerateComment}>生成个性化评语</Button>
+          </Space>
           <Table dataSource={answers} columns={ansCols} rowKey="id" />
         </>
       )}
@@ -106,6 +124,19 @@ export default function TeacherGradingReview() {
             </div>
           </div>
         )}
+      </Modal>
+      <Modal
+        title="个性化评语"
+        open={commentModal.visible}
+        onCancel={() => setCommentModal({ visible: false, comment: '', loading: false })}
+        footer={[
+          <Button key="copy" type="primary" onClick={() => { navigator.clipboard.writeText(commentModal.comment); message.success('已复制到剪贴板'); }}>
+            复制评语
+          </Button>,
+          <Button key="close" onClick={() => setCommentModal({ visible: false, comment: '', loading: false })}>关闭</Button>,
+        ]}
+      >
+        {commentModal.loading ? <p>正在生成评语...</p> : <p style={{ whiteSpace: 'pre-wrap' }}>{commentModal.comment}</p>}
       </Modal>
     </div>
   );

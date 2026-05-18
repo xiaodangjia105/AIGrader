@@ -1,4 +1,4 @@
-export enum QuestionType {
+﻿export enum QuestionType {
   CHOICE = 'CHOICE',
   TRUE_FALSE = 'TRUE_FALSE',
   FILL_BLANK = 'FILL_BLANK',
@@ -17,7 +17,20 @@ export interface User {
   username: string;
   nickname: string;
   role: UserRole;
-  classId: number | null;
+  classId?: number | null;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  userId: number;
+  username: string;
+  nickname: string;
+  role: string;
 }
 
 export interface Question {
@@ -91,9 +104,75 @@ export interface SubmissionAnswer {
   needsReview: boolean;
 }
 
+export interface BatchImportResult {
+  successCount: number;
+  failCount: number;
+  errors: string[];
+}
+
+export interface AiAccuracyTrend {
+  date: string;
+  totalReviewed: number;
+  misjudgmentRate: number;
+  avgDeviation: number;
+}
+
+export interface AiAccuracyDetail {
+  answerId: number;
+  submissionId: number;
+  questionId: number;
+  questionContent: string;
+  aiScore: number;
+  finalScore: number;
+  deviation: number;
+  date: string;
+}
+
+export interface AiAccuracyData {
+  totalQuestions: number;
+  totalGraded: number;
+  totalReviewed: number;
+  reviewRate: number;
+  misjudgmentRate: number;
+  avgDeviation: number;
+  trend: AiAccuracyTrend[];
+}
+
 export interface ApiResponse<T> {
   code: number;
   message: string;
   data: T;
   timestamp: string;
+}
+
+export interface WeakPoint {
+  subject: string;
+  questionType: string;
+  accuracy: number;
+  totalCount: number;
+  correctCount: number;
+}
+
+export interface SubjectAccuracy {
+  subject: string;
+  accuracy: number;
+  totalCount: number;
+  correctCount: number;
+}
+
+export interface StudentReport {
+  studentId: number;
+  studentName: string;
+  totalSubmissions: number;
+  totalAnswers: number;
+  overallAccuracy: number;
+  subjectAccuracies: SubjectAccuracy[];
+  weakPoints: WeakPoint[];
+  aiSuggestions: string;
+}
+
+export interface AiConfig {
+  baseUrl?: string;
+  model?: string;
+  apiKey?: string;
 }

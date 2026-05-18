@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/LoginPage';
 import TeacherAssignments from '../pages/teacher/TeacherAssignments';
 import TeacherCreateAssignment from '../pages/teacher/TeacherCreateAssignment';
@@ -7,10 +7,12 @@ import TeacherStatistics from '../pages/teacher/TeacherStatistics';
 import StudentAssignments from '../pages/student/StudentAssignments';
 import StudentAnswer from '../pages/student/StudentAnswer';
 import StudentResults from '../pages/student/StudentResults';
+import StudentReportPage from '../pages/student/StudentReport';
 import StudentCorrection from '../pages/student/StudentCorrection';
 import AdminQuestions from '../pages/admin/AdminQuestions';
 import AdminUsers from '../pages/admin/AdminUsers';
 import AdminMonitor from '../pages/admin/AdminMonitor';
+import AdminAIConfig from '../pages/admin/AdminAIConfig';
 import MainLayout from '../components/MainLayout';
 
 export default function AppRouter() {
@@ -36,6 +38,7 @@ export default function AppRouter() {
           <Route path="assignments/:id/answer" element={<StudentAnswer />} />
           <Route path="results/:submissionId" element={<StudentResults />} />
           <Route path="correction/:answerId" element={<StudentCorrection />} />
+          <Route path="report" element={<StudentReportPage />} />
         </Route>
 
         {/* Admin */}
@@ -44,6 +47,7 @@ export default function AppRouter() {
           <Route path="questions" element={<AdminQuestions />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="monitor" element={<AdminMonitor />} />
+          <Route path="ai-config" element={<AdminAIConfig />} />
         </Route>
       </Routes>
     </BrowserRouter>

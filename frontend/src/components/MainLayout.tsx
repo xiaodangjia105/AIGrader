@@ -1,4 +1,4 @@
-﻿import { Layout, Menu, Button } from 'antd';
+import { Layout, Menu, Button } from 'antd';
 import {
   FileTextOutlined, BarChartOutlined, CheckCircleOutlined,
   FormOutlined, EditOutlined, UserOutlined, SettingOutlined,
@@ -16,12 +16,14 @@ const teacherMenu = [
 
 const studentMenu = [
   { key: '/student/assignments', icon: <FormOutlined />, label: '我的作业' },
+  { key: '/student/report', icon: <BarChartOutlined />, label: '学习报告' },
 ];
 
 const adminMenu = [
   { key: '/admin/questions', icon: <EditOutlined />, label: '题库管理' },
   { key: '/admin/users', icon: <UserOutlined />, label: '用户管理' },
   { key: '/admin/monitor', icon: <MonitorOutlined />, label: '质量监控' },
+  { key: '/admin/ai-config', icon: <SettingOutlined />, label: 'AI配置' },
 ];
 
 export default function MainLayout({ role }: { role: string }) {

@@ -1,36 +1,114 @@
 import { useEffect, useState } from 'react';
-import { Card, Statistic, Row, Col, Spin } from 'antd';
+import { Card, Statistic, Row, Col, Spin, Table, Tag } from 'antd';
+import {
+  CheckCircleOutlined, ExperimentOutlined, AlertOutlined, LineChartOutlined,
+} from '@ant-design/icons';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { api } from '../../services/api';
+import type { AiAccuracyData, AiAccuracyDetail } from '../../types';
 
 export default function AdminMonitor() {
-  const [stats, setStats] = useState<any>(null);
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [accuracyData, setAccuracyData] = useState<AiAccuracyData | null>(null);
+  const [details, setDetails] = useState<AiAccuracyDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
-      api.getClassStats(1),
-      api.getQuestions(),
-      api.getUsers(),
-    ]).then(([s, q, u]) => {
-      setStats(s);
-      setQuestions(q);
-      setUsers(u);
+      api.getAiAccuracy(),
+      api.getAiAccuracyDetail(),
+    ]).then(([acc, det]) => {
+      setAccuracyData(acc);
+      setDetails(det);
     }).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Spin size="large" style={{ display: 'block', margin: '100px auto' }} />;
 
+  const summary = accuracyData;
+
+  const trendData = (summary?.trend || []).map(item => ({
+    ...item,
+    misjudgmentPct: +(item.misjudgmentRate * 100).toFixed(1),
+    deviationLabel: +item.avgDeviation.toFixed(2),
+  }));
+
+  const detailColumns = [
+    { title: '´ð°¸ID', dataIndex: 'answerId', key: 'answerId', width: 70 },
+    { title: 'ÌâÄ¿', dataIndex: 'questionContent', key: 'questionContent', ellipsis: true },
+    { title: 'AIÆÀ·Ö', dataIndex: 'aiScore', key: 'aiScore', width: 80 },
+    { title: '×îÖÕÆÀ·Ö', dataIndex: 'finalScore', key: 'finalScore', width: 80 },
+    {
+      title: 'Æ«²î', dataIndex: 'deviation', key: 'deviation', width: 80,
+      render: (v: number) => <Tag color={v >= 5 ? 'red' : 'orange'}>{v.toFixed(1)}</Tag>,
+    },
+    { title: 'ÈÕÆÚ', dataIndex: 'date', key: 'date', width: 110 },
+  ];
+
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>ç³»ç»Ÿç›‘æŽ§</h2>
-      <Row gutter={16}>
-        <Col span={6}><Card><Statistic title="ç”¨æˆ·æ€»æ•°" value={users.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="é¢˜ç›®æ€»æ•°" value={questions.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="å¹³å‡åˆ†" value={stats?.averageScore || 0} precision={1} /></Card></Col>
-        <Col span={6}><Card><Statistic title="å®ŒæˆçŽ‡" value={stats ? (stats.completionRate * 100).toFixed(1) : 0} suffix="%" /></Card></Col>
+      <h2 style={{ marginBottom: 16 }}>ÏµÍ³¼à¿Ø</h2>
+
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={6}>
+          <Card>
+            <Statistic title="×ÜÌâÄ¿Êý" value={summary?.totalQuestions || 0} prefix={<CheckCircleOutlined />} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic title="×ÜÅú¸ÄÊý" value={summary?.totalGraded || 0} prefix={<ExperimentOutlined />} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="¸´ºËÂÊ"
+              value={summary ? (summary.reviewRate * 100).toFixed(1) : 0}
+              suffix="%"
+              prefix={<CheckCircleOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="Æ½¾ùÆ«²î"
+              value={summary?.avgDeviation || 0}
+              precision={2}
+              prefix={<AlertOutlined />}
+            />
+          </Card>
+        </Col>
       </Row>
+
+      <Card title="AI ×¼È·ÂÊÇ÷ÊÆ" style={{ marginBottom: 24 }}>
+        {trendData.length === 0 ? (
+          <p style={{ color: '#999', textAlign: 'center', padding: 40 }}>ÔÝÎÞ¸´ºËÊý¾Ý</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis yAxisId="left" label={{ value: 'ÎóÅÐÂÊ (%)', angle: -90, position: 'insideLeft' }} />
+              <YAxis yAxisId="right" orientation="right" label={{ value: 'Æ½¾ùÆ«²î', angle: 90, position: 'insideRight' }} />
+              <Tooltip />
+              <Legend />
+              <Line yAxisId="left" type="monotone" dataKey="misjudgmentPct" stroke="#ff4d4f" name="ÎóÅÐÂÊ (%)" strokeWidth={2} dot={{ r: 4 }} />
+              <Line yAxisId="right" type="monotone" dataKey="deviationLabel" stroke="#1890ff" name="Æ½¾ùÆ«²î" strokeWidth={2} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </Card>
+
+      <Card title="Æ«²î½Ï´ó´ð°¸Ã÷Ï¸£¨|AIÆÀ·Ö - ×îÖÕÆÀ·Ö| ¡Ý 2£©">
+        <Table
+          dataSource={details}
+          columns={detailColumns}
+          rowKey="answerId"
+          locale={{ emptyText: 'ÔÝÎÞÆ«²î½Ï´óµÄ´ð°¸' }}
+          pagination={{ pageSize: 10 }}
+        />
+      </Card>
     </div>
   );
 }

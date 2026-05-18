@@ -30,6 +30,9 @@ public class Submission {
     @Column
     private LocalDateTime aiGradedAt;
 
+    @Column(name = "teacher_personal_comment", columnDefinition = "TEXT")
+    private String teacherPersonalComment;
+
     @PrePersist
     protected void onCreate() {
         submittedAt = LocalDateTime.now();

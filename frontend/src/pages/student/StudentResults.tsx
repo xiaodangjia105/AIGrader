@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Card, Descriptions, Tag, List, Button, Spin } from 'antd';
+﻿import { useEffect, useState } from 'react';
+import { Card, Descriptions, Tag, List, Button, Spin, Alert, Typography } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import type { SubmissionDTO, SubmissionAnswer } from '../../types';
+
+const { Text } = Typography;
 
 export default function StudentResults() {
   const { submissionId } = useParams<{ submissionId: string }>();
   const navigate = useNavigate();
   const [result, setResult] = useState<SubmissionDTO | null>(null);
   const [answers, setAnswers] = useState<SubmissionAnswer[]>([]);
+  const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,9 +19,11 @@ export default function StudentResults() {
     Promise.all([
       api.getResults(Number(submissionId)),
       api.getAnswers(Number(submissionId)),
-    ]).then(([res, ans]) => {
+      api.getComment(Number(submissionId)).catch(() => ({ comment: '' })),
+    ]).then(([res, ans, c]) => {
       setResult(res);
       setAnswers(ans);
+      setComment((c as any).comment || '');
     }).finally(() => setLoading(false));
   }, [submissionId]);
 
@@ -28,6 +33,17 @@ export default function StudentResults() {
   return (
     <div>
       <h2 style={{ marginBottom: 16 }}>批改结果</h2>
+
+      {comment && (
+        <Alert
+          type="info"
+          message="教师评语"
+          description={<Text style={{ whiteSpace: 'pre-wrap' }}>{comment}</Text>}
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
       <Card style={{ marginBottom: 16 }}>
         <Descriptions column={2} size="small">
           <Descriptions.Item label="状态"><Tag color={result.status === 'GRADED' ? 'green' : 'orange'}>{result.status === 'GRADED' ? '已批改' : '已提交'}</Tag></Descriptions.Item>

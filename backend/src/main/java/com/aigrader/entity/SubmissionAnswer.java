@@ -36,6 +36,18 @@ public class SubmissionAnswer {
     @Column(name = "is_correct")
     private Boolean isCorrect;
 
+    @Column(name = "content_score", precision = 5, scale = 1)
+    private BigDecimal contentScore;
+
+    @Column(name = "logic_score", precision = 5, scale = 1)
+    private BigDecimal logicScore;
+
+    @Column(name = "expression_score", precision = 5, scale = 1)
+    private BigDecimal expressionScore;
+
+    @Column(name = "dimension_scores", columnDefinition = "JSONB")
+    private String dimensionScores;
+
     @Column(name = "reviewed_by_teacher")
     @Builder.Default
     private Boolean reviewedByTeacher = false;

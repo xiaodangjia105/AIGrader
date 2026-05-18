@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -72,6 +71,11 @@ public class SubmissionService {
                         .questionId(a.getQuestionId())
                         .studentAnswer(a.getStudentAnswer())
                         .score(a.getFinalScore() != null ? a.getFinalScore() : a.getAiScore())
+                        .contentScore(a.getContentScore())
+                        .logicScore(a.getLogicScore())
+                        .expressionScore(a.getExpressionScore())
+                        .aiFeedback(a.getAiFeedback())
+                        .isCorrect(a.getIsCorrect())
                         .build())
                 .toList();
 

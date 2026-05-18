@@ -12,6 +12,11 @@ public class AnswerDTO {
     private Long questionId;
     private String studentAnswer;
     private BigDecimal score;
+    private BigDecimal contentScore;
+    private BigDecimal logicScore;
+    private BigDecimal expressionScore;
+    private String aiFeedback;
+    private Boolean isCorrect;
 }
 
 @Data @Builder
@@ -25,4 +30,7 @@ class GradingResultDTO {
     private BigDecimal aiConfidence;
     private Boolean isCorrect;
     private Boolean needsReview;
+    private BigDecimal contentScore;
+    private BigDecimal logicScore;
+    private BigDecimal expressionScore;
 }

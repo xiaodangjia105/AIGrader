@@ -2,6 +2,7 @@ package com.aigrader.ai;
 
 import com.aigrader.common.QuestionType;
 import com.aigrader.entity.Question;
+import com.aigrader.service.AiConfigService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -12,10 +13,10 @@ import java.math.BigDecimal;
 @Order(2)
 public class FillBlankGradingStrategy implements GradingStrategy {
 
-    private final ChatClient chatClient;
+    private final AiConfigService aiConfigService;
 
-    public FillBlankGradingStrategy(ChatClient.Builder chatClientBuilder) {
-        this.chatClient = chatClientBuilder.build();
+    public FillBlankGradingStrategy(AiConfigService aiConfigService) {
+        this.aiConfigService = aiConfigService;
     }
 
     @Override
@@ -41,7 +42,11 @@ public class FillBlankGradingStrategy implements GradingStrategy {
     }
 
     protected String callAI(String prompt) {
-        return chatClient.prompt().user(prompt).call().content();
+        ChatClient client = aiConfigService.getChatClient();
+        if (client == null) {
+            throw new RuntimeException("AI service not configured. Please set API Key in Settings.");
+        }
+        return client.prompt().user(prompt).call().content();
     }
 
     protected GradingResult parseAIResponse(String response) {

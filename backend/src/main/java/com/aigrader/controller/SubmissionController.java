@@ -1,12 +1,14 @@
 package com.aigrader.controller;
 
 import com.aigrader.common.ApiResponse;
+import com.aigrader.common.SecurityUtil;
 import com.aigrader.dto.AnswerDTO;
 import com.aigrader.dto.SubmissionDTO;
 import com.aigrader.entity.Submission;
 import com.aigrader.service.GradingService;
 import com.aigrader.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,35 +22,40 @@ public class SubmissionController {
     private final GradingService gradingService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'STUDENT')")
     public ApiResponse<SubmissionDTO> get(@PathVariable Long id) {
         return ApiResponse.success(submissionService.toDTO(submissionService.getById(id)));
     }
 
     @GetMapping("/assignment/{assignmentId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ApiResponse<List<Submission>> listByAssignment(@PathVariable Long assignmentId) {
         return ApiResponse.success(submissionService.listByAssignment(assignmentId));
     }
 
-    @GetMapping("/student/{studentId}")
-    public ApiResponse<List<Submission>> listByStudent(@PathVariable Long studentId) {
-        return ApiResponse.success(submissionService.listByStudent(studentId));
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ApiResponse<List<Submission>> listMy() {
+        return ApiResponse.success(submissionService.listByStudent(SecurityUtil.getCurrentUserId()));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('STUDENT')")
     public ApiResponse<SubmissionDTO> submit(
             @RequestParam Long assignmentId,
-            @RequestParam Long studentId,
             @RequestBody List<AnswerDTO> answers) {
-        return ApiResponse.success(submissionService.submit(assignmentId, studentId, answers));
+        return ApiResponse.success(submissionService.submit(assignmentId, SecurityUtil.getCurrentUserId(), answers));
     }
 
     @PostMapping("/{id}/grade")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ApiResponse<String> triggerGrading(@PathVariable Long id) {
         gradingService.gradeSubmissionAsync(id);
         return ApiResponse.success("Grading started for submission " + id);
     }
 
     @GetMapping("/{id}/results")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'STUDENT')")
     public ApiResponse<SubmissionDTO> getResults(@PathVariable Long id) {
         return ApiResponse.success(submissionService.toDTO(submissionService.getById(id)));
     }
