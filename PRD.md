@@ -500,9 +500,10 @@ App
 
 ### 9.2 安全
 
-- MVP 阶段不做认证，使用 Demo 用户登录
+- Spring Security + JWT 认证已实现，支持教师/学生/管理员三种角色
 - API Key 通过环境变量注入，不写入配置文件
 - CORS 仅允许前端域
+- JWT token 通过 Authorization: Bearer 头传递，密钥和过期时间通过环境变量配置
 - 敏感配置已加入 `.gitignore`
 
 ### 9.3 可维护性
@@ -531,7 +532,7 @@ App
 | 版本 | 内容 | 状态 |
 |---|---|---|
 | v1.0 MVP | 三端基础功能 + AI 引擎 + 种子数据 | ✅ 已完成 |
-| v1.1 | 用户认证（Spring Security + JWT） | 🔜 计划中 |
+| v1.1 | 用户认证（Spring Security + JWT） | ✅ 已完成 |
 | v1.2 | pgvector 语义检索 + 相似题推荐 | 🔜 计划中 |
 | v2.0 | 图片上传（MinIO）+ 拍照批改 | 📋 远期 |
 

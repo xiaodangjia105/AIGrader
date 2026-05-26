@@ -26,9 +26,7 @@
 AIGrader/
 ├── README.md                    ← 本文件
 ├── PRD.md                       ← 产品需求文档
-├── DEVELOPMENT_PLAN.md          ← 开发计划
-├── DEVELOPER_GUIDE.md           ← Agent 开发规范
-├── PROGRESS.md                  ← 功能进度追踪
+├── DEVELOPMENT_PLAN.md          ← 开发计划 + 功能状态
 ├── ENV_INFO.md                  ← 环境速查
 ├── AGENTS.md                    ← AI 协作约束
 │
@@ -64,6 +62,16 @@ AIGrader/
 │       ├── config/              ← Spring 配置
 │       └── common/              ← 工具/枚举
 │
+├── skills/                      ← Skill 文档管理体系（9 个域）
+│   ├── aigrader-repo-map/       ← 仓库导航
+│   ├── aigrader-auth/           ← 认证鉴权
+│   ├── aigrader-question-bank/  ← 题库管理
+│   ├── aigrader-assignment/     ← 作业管理
+│   ├── aigrader-grading/        ← AI 批改引擎
+│   ├── aigrader-statistics/     ← 统计报表
+│   ├── aigrader-admin/          ← 管理后台
+│   ├── aigrader-business-dictionary/ ← 业务词典
+│   └── aigrader-change-playbook/ ← 变更剧本
 ├── frontend/                    ← React 前端
 │   ├── package.json
 │   └── src/
