@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 作业管理"
+  short_description: "处理作业创建、选题组卷和班级管理。"
+  default_prompt: "使用 aigrader-assignment 帮我处理作业相关的问题。"
+
+policy:
+  allow_implicit_invocation: true

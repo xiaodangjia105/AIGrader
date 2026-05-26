@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 变更剧本"
+  short_description: "处理跨域改动的影响面分析和回滚策略。"
+  default_prompt: "使用 aigrader-change-playbook 帮我分析这个改动的影响面和回滚策略。"
+
+policy:
+  allow_implicit_invocation: true

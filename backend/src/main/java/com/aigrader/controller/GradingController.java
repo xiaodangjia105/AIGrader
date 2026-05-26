@@ -34,7 +34,7 @@ public class GradingController {
     }
 
     @GetMapping("/grading/answers/{submissionId}")
-    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'STUDENT')")
     public ApiResponse<List<SubmissionAnswer>> getAnswers(@PathVariable Long submissionId) {
         return ApiResponse.success(submissionAnswerRepository.findBySubmissionId(submissionId));
     }

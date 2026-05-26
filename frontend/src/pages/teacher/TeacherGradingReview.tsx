@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Tag, Button, Modal, InputNumber, Input, message, Space } from 'antd';
 import { useParams } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -18,20 +18,13 @@ export default function TeacherGradingReview() {
   useEffect(() => {
     if (!submissionId) return;
     setLoading(true);
-    api.getAssignmentSubmissions(Number(submissionId))
-      .then(setSubmissions)
-      .finally(() => setLoading(false));
+    api.getAssignmentSubmissions(Number(submissionId)).then(setSubmissions).finally(() => setLoading(false));
   }, [submissionId]);
 
   const loadAnswers = async (subId: number) => {
     setSelectedSubmissionId(subId);
     setLoading(true);
-    try {
-      const data = await api.getAnswers(subId);
-      setAnswers(data);
-    } finally {
-      setLoading(false);
-    }
+    try { setAnswers(await api.getAnswers(subId)); } finally { setLoading(false); }
   };
 
   const handleReview = (answer: SubmissionAnswer) => {
@@ -47,9 +40,7 @@ export default function TeacherGradingReview() {
       message.success('复核提交成功');
       setReviewModal({ visible: false, answer: null });
       if (selectedSubmissionId) loadAnswers(selectedSubmissionId);
-    } catch {
-      message.error('复核失败');
-    }
+    } catch { message.error('复核失败'); }
   };
 
   const handleGenerateComment = async () => {
@@ -68,12 +59,7 @@ export default function TeacherGradingReview() {
     { title: '编号', dataIndex: 'id', key: 'id', width: 60 },
     { title: '学生', dataIndex: 'studentId', key: 'studentId' },
     { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'GRADED' ? 'green' : 'orange'}>{s === 'GRADED' ? '已批改' : '已提交'}</Tag> },
-    {
-      title: '操作', key: 'actions',
-      render: (_: any, record: Submission) => (
-        <Button size="small" onClick={() => loadAnswers(record.id)}>查看答案</Button>
-      ),
-    },
+    { title: '操作', key: 'actions', render: (_: any, record: Submission) => <Button size="small" onClick={() => loadAnswers(record.id)}>查看答案</Button> },
   ];
 
   const ansCols = [
@@ -81,12 +67,7 @@ export default function TeacherGradingReview() {
     { title: '学生答案', dataIndex: 'studentAnswer', key: 'studentAnswer', ellipsis: true },
     { title: 'AI 评分', dataIndex: 'aiScore', key: 'aiScore', width: 80 },
     { title: '置信度', dataIndex: 'aiConfidence', key: 'aiConfidence', width: 90, render: (c: number) => c ? `${(c * 100).toFixed(0)}%` : '-' },
-    {
-      title: '操作', key: 'actions', width: 100,
-      render: (_: any, record: SubmissionAnswer) => (
-        <Button size="small" onClick={() => handleReview(record)}>复核</Button>
-      ),
-    },
+    { title: '操作', key: 'actions', width: 100, render: (_: any, record: SubmissionAnswer) => <Button size="small" onClick={() => handleReview(record)}>复核</Button> },
   ];
 
   return (
@@ -102,14 +83,7 @@ export default function TeacherGradingReview() {
           <Table dataSource={answers} columns={ansCols} rowKey="id" />
         </>
       )}
-      <Modal
-        title="复核评分"
-        open={reviewModal.visible}
-        onOk={submitReview}
-        onCancel={() => setReviewModal({ visible: false, answer: null })}
-        okText="确认"
-        cancelText="取消"
-      >
+      <Modal title="复核评分" open={reviewModal.visible} onOk={submitReview} onCancel={() => setReviewModal({ visible: false, answer: null })} okText="确认" cancelText="取消">
         {reviewModal.answer && (
           <div>
             <p><strong>学生答案：</strong> {reviewModal.answer.studentAnswer}</p>
@@ -125,17 +99,7 @@ export default function TeacherGradingReview() {
           </div>
         )}
       </Modal>
-      <Modal
-        title="个性化评语"
-        open={commentModal.visible}
-        onCancel={() => setCommentModal({ visible: false, comment: '', loading: false })}
-        footer={[
-          <Button key="copy" type="primary" onClick={() => { navigator.clipboard.writeText(commentModal.comment); message.success('已复制到剪贴板'); }}>
-            复制评语
-          </Button>,
-          <Button key="close" onClick={() => setCommentModal({ visible: false, comment: '', loading: false })}>关闭</Button>,
-        ]}
-      >
+      <Modal title="个性化评语" open={commentModal.visible} onCancel={() => setCommentModal({ visible: false, comment: '', loading: false })} footer={[<Button key="copy" type="primary" onClick={() => { navigator.clipboard.writeText(commentModal.comment); message.success('已复制到剪贴板'); }}>复制评语</Button>, <Button key="close" onClick={() => setCommentModal({ visible: false, comment: '', loading: false })}>关闭</Button>]}>
         {commentModal.loading ? <p>正在生成评语...</p> : <p style={{ whiteSpace: 'pre-wrap' }}>{commentModal.comment}</p>}
       </Modal>
     </div>

@@ -73,6 +73,23 @@
 - [ ] pgvector 语义检索
 
 ### 低优先级
-- [ ] Spring Security + JWT 认证
+- [x] Spring Security + JWT 认证（已实现：JwtUtil、SecurityConfig、AuthController、JwtAuthenticationFilter、CustomUserDetailsService）
 - [ ] E2E 测试（Playwright）
 - [ ] MinIO 图片上传
+
+---
+
+## 当前问题清单（2026-05-20 检测）
+
+### 已修复
+- [x] TypeScript 编译错误：getTeacherAssignments() 缺参数 → 改用 getMyAssignments()
+- [x] TypeScript 编译错误：pi.getClasses() 不存在 → 已添加到 API 服务
+- [x] 前后端 API 不一致：/assignments/teacher/{id} → 统一为 /assignments/my
+- [x] 前后端 API 不一致：/submissions/student/{id} → 统一为 /submissions/my
+
+### 待改进
+- [ ] 班级统计页面仅有基础数据，缺少 PRD 中的「分数分布柱状图」「高频错题 Top 5」
+- [ ] 学生订正页面未展示原题和原始答案上下文
+- [ ] TeacherGradingReview 路由参数名为 :submissionId 但实际传的是 ssignmentId，命名误导
+- [ ] TeacherQuestions.tsx 与 AdminQuestions.tsx 代码高度重复（~95%）
+- [ ] 种子数据 SQL 文件未确认存在且可运行

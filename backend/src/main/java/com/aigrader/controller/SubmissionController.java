@@ -34,17 +34,18 @@ public class SubmissionController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'STUDENT')")
     public ApiResponse<List<Submission>> listMy() {
         return ApiResponse.success(submissionService.listByStudent(SecurityUtil.getCurrentUserId()));
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN', 'STUDENT')")
     public ApiResponse<SubmissionDTO> submit(
             @RequestParam Long assignmentId,
             @RequestBody List<AnswerDTO> answers) {
-        return ApiResponse.success(submissionService.submit(assignmentId, SecurityUtil.getCurrentUserId(), answers));
+        SubmissionDTO submission = submissionService.submit(assignmentId, SecurityUtil.getCurrentUserId(), answers);
+        return ApiResponse.success(submission);
     }
 
     @PostMapping("/{id}/grade")

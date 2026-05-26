@@ -6,20 +6,26 @@ import com.aigrader.entity.Submission;
 import com.aigrader.entity.SubmissionAnswer;
 import com.aigrader.repository.SubmissionAnswerRepository;
 import com.aigrader.repository.SubmissionRepository;
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import com.aigrader.common.BusinessException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;
     private final SubmissionAnswerRepository submissionAnswerRepository;
-    private final AssignmentService assignmentService;
+    private final ApplicationContext applicationContext;
 
     public Submission getById(Long id) {
         return submissionRepository.findById(id)
@@ -38,7 +44,7 @@ public class SubmissionService {
     public SubmissionDTO submit(Long assignmentId, Long studentId, List<AnswerDTO> answers) {
         var existing = submissionRepository.findByAssignmentIdAndStudentId(assignmentId, studentId);
         if (existing.isPresent()) {
-            throw new RuntimeException("Already submitted for this assignment");
+            throw new BusinessException(409, "你已经提交过该作业，无需重复提交");
         }
 
         Submission submission = Submission.builder()
@@ -55,6 +61,18 @@ public class SubmissionService {
                     .studentAnswer(answer.getStudentAnswer())
                     .build();
             submissionAnswerRepository.save(sa);
+        }
+
+        Long submissionId = submission.getId();
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    applicationContext.getBean(GradingService.class).gradeSubmissionAsync(submissionId);
+                }
+            });
+        } else {
+            log.warn("Transaction synchronization not active, skipping async grading trigger");
         }
 
         return toDTO(submission);

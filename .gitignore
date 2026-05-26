@@ -36,3 +36,6 @@ logs/
 pgdata/
 redis_data/
 minio_data/
+
+# ===== Temp scripts =====
+_*.py

@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 管理后台"
+  short_description: "处理AI配置、用户管理和质量监控。"
+  default_prompt: "使用 aigrader-admin 帮我处理管理员功能相关的问题。"
+
+policy:
+  allow_implicit_invocation: true

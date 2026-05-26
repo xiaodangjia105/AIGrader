@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 题库管理"
+  short_description: "处理题目 CRUD、题型管理和批量导入。"
+  default_prompt: "使用 aigrader-question-bank 帮我处理题库相关的问题。"
+
+policy:
+  allow_implicit_invocation: true

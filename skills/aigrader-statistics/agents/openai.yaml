@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 统计报表"
+  short_description: "处理班级统计、学生报告和AI准确率监控。"
+  default_prompt: "使用 aigrader-statistics 帮我处理统计和报表相关的问题。"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Card, Button, Input, Space, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +27,7 @@ export default function LoginPage() {
     try {
       const res = await api.login(username.trim(), password);
       setAuth(
-        { id: res.userId, username: res.username, nickname: res.nickname, role: res.role as UserRole },
+        { id: res.userId, username: res.username, nickname: res.nickname, role: res.role as UserRole, classId: res.classId ?? null },
         res.token,
       );
       message.success('登录成功');

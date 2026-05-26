@@ -2,6 +2,8 @@ package com.aigrader.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 
 @Entity
@@ -45,6 +47,7 @@ public class SubmissionAnswer {
     @Column(name = "expression_score", precision = 5, scale = 1)
     private BigDecimal expressionScore;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "dimension_scores", columnDefinition = "JSONB")
     private String dimensionScores;
 

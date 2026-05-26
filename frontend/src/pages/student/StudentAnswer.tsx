@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Card, Input, Button, Radio, Space, Spin, message } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -35,12 +35,11 @@ export default function StudentAnswer() {
         questionId: q.id,
         studentAnswer: answers[q.id] || '',
       }));
-      const submission = await api.submit(Number(id), user.id, answerList);
-      await api.triggerGrading(submission.id);
+      const submission = await api.submit(Number(id), answerList);
       message.success('提交成功！正在跳转到批改结果...');
       setTimeout(() => navigate(`/student/results/${submission.id}`), 1500);
-    } catch {
-      message.error('提交失败');
+    } catch (e: unknown) {
+      message.error(e instanceof Error ? e.message : '提交失败');
     } finally {
       setSubmitting(false);
     }

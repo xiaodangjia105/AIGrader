@@ -33,7 +33,13 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     throw new Error('Login expired');
   }
   if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    try {
+      const errJson = await res.json();
+      throw new Error(errJson.message || `HTTP ${res.status}: ${res.statusText}`);
+    } catch (e) {
+      if (e instanceof Error && e.message !== `HTTP ${res.status}: ${res.statusText}`) throw e;
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
   }
   const json: ApiResponse<T> = await res.json();
   if (json.code !== 200) {
@@ -61,7 +67,13 @@ async function uploadCsv<T>(url: string, file: File): Promise<T> {
     throw new Error('Login expired');
   }
   if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    try {
+      const errJson = await res.json();
+      throw new Error(errJson.message || `HTTP ${res.status}: ${res.statusText}`);
+    } catch (e) {
+      if (e instanceof Error && e.message !== `HTTP ${res.status}: ${res.statusText}`) throw e;
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
   }
   const json: ApiResponse<T> = await res.json();
   if (json.code !== 200) {
@@ -89,7 +101,8 @@ export const api = {
 
   // Assignments
   getAssignment: (id: number) => request<any>(`/assignments/${id}`),
-  getTeacherAssignments: (teacherId: number) => request<any[]>(`/assignments/teacher/${teacherId}`),
+  getMyAssignments: () => request<any[]>('/assignments/my'),
+  getClasses: () => request<any[]>('/classes'),
   getClassAssignments: (classId: number) => request<any[]>(`/assignments/class/${classId}`),
   createAssignment: (data: any) => request<any>('/assignments', { method: 'POST', body: JSON.stringify(data) }),
   getAssignmentQuestions: (id: number) => request<any[]>(`/assignments/${id}/questions`),
@@ -97,9 +110,9 @@ export const api = {
   // Submissions
   getSubmission: (id: number) => request<any>(`/submissions/${id}`),
   getAssignmentSubmissions: (assignmentId: number) => request<any[]>(`/submissions/assignment/${assignmentId}`),
-  getStudentSubmissions: (studentId: number) => request<any[]>(`/submissions/student/${studentId}`),
-  submit: (assignmentId: number, studentId: number, answers: any[]) =>
-    request<any>(`/submissions?assignmentId=${assignmentId}&studentId=${studentId}`, { method: 'POST', body: JSON.stringify(answers) }),
+  getMySubmissions: () => request<any[]>('/submissions/my'),
+  submit: (assignmentId: number, answers: any[]) =>
+    request<any>(`/submissions?assignmentId=${assignmentId}`, { method: 'POST', body: JSON.stringify(answers) }),
   triggerGrading: (id: number) => request<string>(`/submissions/${id}/grade`, { method: 'POST' }),
   getResults: (id: number) => request<any>(`/submissions/${id}/results`),
 

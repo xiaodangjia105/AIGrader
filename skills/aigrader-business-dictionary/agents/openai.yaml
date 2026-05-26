@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 业务词典"
+  short_description: "统一跨域名词、真值源和对象层级。"
+  default_prompt: "使用 aigrader-business-dictionary 帮我确认这些对象在AIGrader中的真实语义。"
+
+policy:
+  allow_implicit_invocation: true

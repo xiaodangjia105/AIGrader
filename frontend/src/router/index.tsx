@@ -3,6 +3,7 @@ import LoginPage from '../pages/LoginPage';
 import TeacherAssignments from '../pages/teacher/TeacherAssignments';
 import TeacherCreateAssignment from '../pages/teacher/TeacherCreateAssignment';
 import TeacherGradingReview from '../pages/teacher/TeacherGradingReview';
+import TeacherQuestions from '../pages/teacher/TeacherQuestions';
 import TeacherStatistics from '../pages/teacher/TeacherStatistics';
 import StudentAssignments from '../pages/student/StudentAssignments';
 import StudentAnswer from '../pages/student/StudentAnswer';
@@ -28,6 +29,7 @@ export default function AppRouter() {
           <Route path="assignments" element={<TeacherAssignments />} />
           <Route path="assignments/new" element={<TeacherCreateAssignment />} />
           <Route path="grading/:submissionId" element={<TeacherGradingReview />} />
+          <Route path="questions" element={<TeacherQuestions />} />
           <Route path="statistics" element={<TeacherStatistics />} />
         </Route>
 

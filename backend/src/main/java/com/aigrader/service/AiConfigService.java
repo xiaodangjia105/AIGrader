@@ -20,13 +20,17 @@ import java.util.Optional;
 public class AiConfigService {
 
     private final AiConfigRepository aiConfigRepository;
+    private final ChatClient.Builder chatClientBuilder;
     private volatile ChatClient activeChatClient;
 
     @PostConstruct
     public void init() {
         aiConfigRepository.findByIsActiveTrue().ifPresentOrElse(
                 this::applyConfig,
-                () -> log.info("No active AiConfig found, using default ChatClient from application.yml"));
+                () -> {
+                    activeChatClient = chatClientBuilder.build();
+                    log.info("No active AiConfig found, using default ChatClient from application.yml");
+                });
     }
 
     public Optional<AiConfig> getActiveConfig() {

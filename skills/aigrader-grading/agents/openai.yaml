@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader AI 批改"
+  short_description: "处理提交、AI批改、复核和订正流程。"
+  default_prompt: "使用 aigrader-grading 帮我处理批改相关的问题。"
+
+policy:
+  allow_implicit_invocation: true

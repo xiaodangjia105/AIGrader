@@ -1,4 +1,4 @@
-﻿export enum QuestionType {
+export enum QuestionType {
   CHOICE = 'CHOICE',
   TRUE_FALSE = 'TRUE_FALSE',
   FILL_BLANK = 'FILL_BLANK',
@@ -31,6 +31,7 @@ export interface LoginResponse {
   username: string;
   nickname: string;
   role: string;
+  classId?: number | null;
 }
 
 export interface Question {

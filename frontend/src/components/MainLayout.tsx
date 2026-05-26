@@ -11,6 +11,7 @@ const { Header, Sider, Content } = Layout;
 
 const teacherMenu = [
   { key: '/teacher/assignments', icon: <FileTextOutlined />, label: '作业管理' },
+  { key: '/teacher/questions', icon: <EditOutlined />, label: '题库管理' },
   { key: '/teacher/statistics', icon: <BarChartOutlined />, label: '班级统计' },
 ];
 

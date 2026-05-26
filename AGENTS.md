@@ -46,8 +46,42 @@ AIGrader/
 │   │   ├── router/         ← 路由配置
 │   │   └── types/          ← TypeScript 类型定义
 │   └── package.json
-└── skills/                 ← Codex skills
+└── skills/                 ← 基于 Skill 的文档管理体系
+    ├── aigrader-repo-map/          ← 仓库导航（需求路由）
+    ├── aigrader-auth/              ← 认证鉴权
+    ├── aigrader-question-bank/     ← 题库管理
+    ├── aigrader-assignment/        ← 作业管理
+    ├── aigrader-grading/           ← AI 批改引擎
+    ├── aigrader-statistics/        ← 统计报表
+    ├── aigrader-admin/             ← 管理后台
+    ├── aigrader-business-dictionary/ ← 业务词典
+    └── aigrader-change-playbook/   ← 变更剧本
 ```
+## Skill 管理体系
+
+项目参照 AI-Meeting 的 Skill-based 文档管理模式，将业务知识按域拆分为独立的 Skill。
+每个 Skill 包含三层：SKILL.md（入口）→ agents/（Agent 配置）→ references/（领域知识文档）。
+
+### 使用原则
+
+- **路由优先：** 新需求先用 igrader-repo-map 定位领域，再切入对应 Skill。
+- **先查后改：** 改动前先阅读对应 Skill 的 references/，确认对象语义和约束。
+- **跨域先停：** 改动涉及多个域或有歧义时，先用 igrader-business-dictionary 确认名词含义。
+- **影响面评估：** 跨层改动时，用 igrader-change-playbook 做影响面分析。
+
+### Skill 索引
+
+| Skill | 覆盖范围 | 触发条件 |
+|---|---|---|
+| aigrader-repo-map | 需求路由、模块定位 | 需求入口不清晰 |
+| aigrader-auth | 登录、JWT、角色权限 | /api/auth/**、SecurityUtil |
+| aigrader-question-bank | 题库 CRUD、批量导入 | /api/questions/** |
+| aigrader-assignment | 作业创建、选题组卷 | /api/assignments/** |
+| aigrader-grading | AI 批改、复核、订正 | /api/submissions/**、/api/grading/** |
+| aigrader-statistics | 班级统计、学生报告 | /api/statistics/** |
+| aigrader-admin | AI 配置、用户管理 | /api/admin/** |
+| aigrader-business-dictionary | 跨域名词统一 | 对象语义不清晰 |
+| aigrader-change-playbook | 跨域改动影响面 | 改接口+实体+DTO 一起 |
 
 ## 核心约束
 

@@ -1,0 +1,7 @@
+interface:
+  display_name: "AIGrader 鉴权"
+  short_description: "处理登录、JWT、角色权限和用户上下文。"
+  default_prompt: "使用 aigrader-auth 帮我处理认证和权限相关的问题。"
+
+policy:
+  allow_implicit_invocation: true

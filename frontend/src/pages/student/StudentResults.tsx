@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Descriptions, Tag, List, Button, Spin, Alert, Typography } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -18,7 +18,7 @@ export default function StudentResults() {
     if (!submissionId) return;
     Promise.all([
       api.getResults(Number(submissionId)),
-      api.getAnswers(Number(submissionId)),
+      api.getAnswers(Number(submissionId)).catch(() => []),
       api.getComment(Number(submissionId)).catch(() => ({ comment: '' })),
     ]).then(([res, ans, c]) => {
       setResult(res);

@@ -16,7 +16,7 @@ export default function TeacherAssignments() {
     if (!user) return;
     setLoading(true);
     try {
-      const data = await api.getTeacherAssignments(user.id);
+      const data = await api.getMyAssignments();
       setAssignments(data);
     } finally {
       setLoading(false);
